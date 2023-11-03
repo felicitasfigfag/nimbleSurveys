@@ -45,15 +45,25 @@ struct SlideViewContainer: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 60)
                           
-                Spacer(minLength: 20) 
+                Spacer(minLength: 20)
                 
                 TabView(selection: $currentSlideIndex) {
                     ForEach(slides.indices, id: \.self) { index in
-                        SlideViewItem(title: slides[index].title, description: slides[index].description, imageName: slides[index].imageName, action: nextSlide)
-                            .frame(width: geometry.size.width, height: geometry.size.height - 88)
-                            .tag(index)
+                        NavigationLink(destination: SlideDetailView(slide: slides[index])) {
+                            VStack(alignment: .leading, spacing: 0) {
+                                SlideViewItem(title: slides[index].title,
+                                              description: slides[index].description,
+                                              imageName: slides[index].imageName,
+                                              action: nextSlide)
+                            }
+                            .frame(width: geometry.size.width, height: geometry.size.height - 88, alignment: .leading)
+                            .background(Color.red)
+                        }
+                        .tag(index)
                     }
                 }
+
+
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
             }
             .background(

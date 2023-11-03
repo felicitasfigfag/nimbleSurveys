@@ -15,40 +15,42 @@ struct SlideViewItem: View {
     
     var body: some View {
         GeometryReader { geometry in
-                VStack {
-                    Spacer()
-                    HStack {
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text(self.title)
-                                .font(.title)
-                                .fontWeight(.bold)
-
-                            Text(self.description)
-                                .foregroundColor(.white)
-                        }
-                        .foregroundColor(.white)
-                        .padding()
-                        .cornerRadius(10)
-                        .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 5)
-
-                        Button(action: {
-                            self.action()
-                        }) {
-                            Text(">")
-                                .font(.largeTitle)
-                                .foregroundColor(.black)
-                                .frame(width: 56, height: 56)
-                                .background(Color.white)
-                                .clipShape(Circle())
-                        }
+            VStack (alignment: .leading) {
+                Spacer()
+                HStack {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text(self.title)
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .background(Color.yellow)
+                            .padding(0)
+                            
+                        Text(self.description)
+                            .foregroundColor(.white)
+                            .background(Color.blue)
+                            .padding(0)
                     }
-                    .padding(.bottom, 30)
+                    .frame(width: geometry.size.width * 0.7)
+                    .foregroundColor(.white)
+                    .padding()
+                    .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 5)
+                    
+                    Button(action: {
+                        self.action()
+                    }) {
+                        Text(">")
+                            .font(.largeTitle)
+                            .foregroundColor(.black)
+                            .frame(width: 56, height: 56)
+                            .background(Color.white)
+                            .clipShape(Circle())
+                    }
                 }
+                .padding(.bottom, 30)
+            }
         }
     }
 }
-
-//#Preview {
-//    var container = SlideViewContainer()
-//    SlideViewItem(title: "Test title", description: "We would like to know how you feel about our work from home...", imageName: "slideBkg2", action: container.nextSlide)
-//}
+#Preview {
+    SlideViewItem(title: "Test title", description: "We would like to know how you feel about our work from home...", imageName: "slideBkg2", action: {print("next slide")})
+}
