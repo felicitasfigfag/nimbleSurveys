@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct LoginView: View {
+    @StateObject var vm = LoginViewModel()
+    
     var body: some View {
         ZStack {
             // Background
@@ -25,7 +27,7 @@ struct LoginView: View {
             
             // Campos y botón
             VStack(spacing: 20) {
-                TextField("Email", text: .constant(""))
+                TextField(vm.email, text: .constant(""))
                     .padding()
                     .background(Color.white.opacity(0.2))
                     .cornerRadius(10)
@@ -33,20 +35,20 @@ struct LoginView: View {
                 
                 
                 ZStack(alignment: .trailing) {
-                    SecureField("Password", text: .constant(""))
+                    SecureField(vm.password, text: .constant(""))
                         .padding()
                         .background(Color.white.opacity(0.2))
                         .cornerRadius(10)
                         .foregroundColor(.white)
                     
-                    Button(action: {}) {
+                    Button(action: vm.forgotPassword) {
                         Text("Forgot?")
                             .foregroundColor(.white)
                             .padding(.trailing, 8)
                     }
                 }
                 
-                Button(action: {}) {
+                Button(action: vm.login) {
                     Text("Log in")
                         .foregroundColor(.black)
                         .padding()

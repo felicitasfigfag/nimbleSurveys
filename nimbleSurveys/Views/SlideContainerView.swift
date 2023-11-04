@@ -1,5 +1,5 @@
 //
-//  SlideViewContainer.swift
+//  SlideContainerView.swift
 //  nimbleSurveys
 //
 //  Created by Felicitas Figueroa Fagalde on 03/11/2023.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SlideViewContainer: View {
+struct SlideContainerView: View {
     @State private var currentSlideIndex = 0
     var currentDate: String {
         let formatter = DateFormatter()
@@ -51,7 +51,7 @@ struct SlideViewContainer: View {
                     ForEach(slides.indices, id: \.self) { index in
                         NavigationLink(destination: SlideDetailView(slide: slides[index])) {
                             VStack(alignment: .leading, spacing: 0) {
-                                SlideViewItem(title: slides[index].title,
+                                SlideItemView(title: slides[index].title,
                                               description: slides[index].description,
                                               imageName: slides[index].imageName,
                                               action: nextSlide)
@@ -77,5 +77,5 @@ struct SlideViewContainer: View {
 }
 
 #Preview {
-    SlideViewContainer()
+    SlideContainerView()
 }

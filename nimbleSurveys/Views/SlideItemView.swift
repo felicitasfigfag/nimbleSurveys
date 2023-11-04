@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SlideViewItem: View {
+struct SlideItemView: View {
     var title: String
     var description: String
     var imageName: String
@@ -50,5 +50,5 @@ struct SlideViewItem: View {
     }
 }
 #Preview {
-    SlideViewItem(title: "Test title", description: "We would like to know how you feel about our work from home...", imageName: "slideBkg2", action: {print("next slide")})
+    SlideItemView(title: "Test title", description: "We would like to know how you feel about our work from home...", imageName: "slideBkg2", action: {print("next slide")})
 }
