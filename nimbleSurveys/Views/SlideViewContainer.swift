@@ -57,7 +57,6 @@ struct SlideViewContainer: View {
                                               action: nextSlide)
                             }
                             .frame(width: geometry.size.width, height: geometry.size.height - 88, alignment: .leading)
-                            .background(Color.red)
                         }
                         .tag(index)
                     }

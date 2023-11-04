@@ -22,12 +22,10 @@ struct SlideViewItem: View {
                         Text(self.title)
                             .font(.title)
                             .fontWeight(.bold)
-                            .background(Color.yellow)
                             .padding(0)
                             
                         Text(self.description)
                             .foregroundColor(.white)
-                            .background(Color.blue)
                             .padding(0)
                     }
                     .frame(width: geometry.size.width * 0.7)
