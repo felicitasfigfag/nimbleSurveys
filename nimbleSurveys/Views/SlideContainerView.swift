@@ -8,29 +8,13 @@
 import SwiftUI
 
 struct SlideContainerView: View {
-    @State private var currentSlideIndex = 0
-    var currentDate: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMMM dd"
-        return formatter.string(from: Date()).uppercased()
-    }
-    
-    func nextSlide() {
-        withAnimation {
-            if currentSlideIndex < slides.count - 1 {
-                currentSlideIndex += 1
-            } else {
-                currentSlideIndex = 0
-            }
-        }
-    }
+    @StateObject var vm: SlideContainerViewModel
 
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 0) {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text(currentDate)
+                        Text(vm.currentDate)
                         Text("Today")
                             .font(.largeTitle)
                             .fontWeight(.bold)
@@ -44,38 +28,35 @@ struct SlideContainerView: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 60)
-                          
+                            
                 Spacer(minLength: 20)
                 
-                TabView(selection: $currentSlideIndex) {
-                    ForEach(slides.indices, id: \.self) { index in
-                        NavigationLink(destination: SlideDetailView(slide: slides[index])) {
+                TabView(selection: $vm.currentSlideIndex) {
+                    ForEach(vm.slides.indices, id: \.self) { index in
+                        NavigationLink(destination: SlideDetailView(slide: vm.slides[index])) {
                             VStack(alignment: .leading, spacing: 0) {
-                                SlideItemView(title: slides[index].title,
-                                              description: slides[index].description,
-                                              imageName: slides[index].imageName,
-                                              action: nextSlide)
+                                SlideItemView(title: vm.slides[index].title,
+                                              description: vm.slides[index].description,
+                                              imageName: vm.slides[index].imageName,
+                                              action: vm.nextSlide)
                             }
                             .frame(width: geometry.size.width, height: geometry.size.height - 88, alignment: .leading)
                         }
                         .tag(index)
                     }
                 }
-
-
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
             }
             .background(
-                Image(slides[currentSlideIndex].imageName)
+                Image(vm.slides[vm.currentSlideIndex].imageName)
                     .resizable()
                     .scaledToFill()
                     .edgesIgnoringSafeArea(.all)
             )
             .edgesIgnoringSafeArea(.all)
         }
-    }
 }
 
 #Preview {
-    SlideContainerView()
+    SlideContainerView(vm: SlideContainerViewModel(slides: mockSlides))
 }

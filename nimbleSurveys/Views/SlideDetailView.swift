@@ -56,6 +56,6 @@ struct SlideDetailView: View {
 }
 
 #Preview {
-    SlideDetailView(slide: slides[0])
+    SlideDetailView(slide: mockSlides[0])
 }
 

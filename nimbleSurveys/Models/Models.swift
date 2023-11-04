@@ -13,8 +13,8 @@ struct SlideData {
     var imageName: String
 }
 
-let slides: [SlideData] = [
-    SlideData(title: "Working from home", 
+let mockSlides: [SlideData] = [
+    SlideData(title: "Working from home",
               description: "We would like to know how you feel about our work from home...",
               imageName: "slideBkg1"),
     SlideData(title: "Career training and development", 
