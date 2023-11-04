@@ -4,3 +4,5 @@ xcuserdata/
 project.xcworkspace/
 DerivedData/
 *.xcodeproj/
+*.xcworkspace
+Pods
