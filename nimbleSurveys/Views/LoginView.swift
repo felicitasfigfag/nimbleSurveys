@@ -12,30 +12,30 @@ struct LoginView: View {
     
     var body: some View {
         ZStack {
-            // Background
             Image("bkgLogin")
                 .resizable()
                 .scaledToFill()
                 .edgesIgnoringSafeArea(.all)
             
-            // Logo
             Image("splashLogo")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 200, height: 100)
-                .position(x: UIScreen.main.bounds.width/2, y: 153)
+                .position(x: UIScreen.main.bounds.width / 2, y: 153)
             
-            // Campos y botón
             VStack(spacing: 20) {
-                TextField(vm.email, text: .constant(""))
-                    .padding()
-                    .background(Color.white.opacity(0.2))
-                    .cornerRadius(10)
-                    .keyboardType(.emailAddress)
-                
-                
+                TextField("Email", text: Binding(
+                                 get: { self.vm.email },
+                                 set: { self.vm.email = $0.lowercased() }
+                             ))
+                        .padding()
+                        .background(Color.white.opacity(0.2))
+                        .cornerRadius(10)
+                        .keyboardType(.emailAddress)
+                        .foregroundColor(.white)
+                        .autocapitalization(.none)
                 ZStack(alignment: .trailing) {
-                    SecureField(vm.password, text: .constant(""))
+                    SecureField("Password", text: $vm.password)
                         .padding()
                         .background(Color.white.opacity(0.2))
                         .cornerRadius(10)
@@ -58,7 +58,14 @@ struct LoginView: View {
                 }
             }
             .padding(.horizontal, 24)
-            .position(x: UIScreen.main.bounds.width/2, y: 153 + 100 + 109)
+            .position(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2)
+        
+        }
+        .onReceive(vm.$isAuthenticated) { isAuthenticated in
+            if isAuthenticated {
+                print("Auth!")
+                // Animation?
+            }
         }
     }
 }
