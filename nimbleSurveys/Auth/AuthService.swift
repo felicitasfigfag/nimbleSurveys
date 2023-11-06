@@ -56,8 +56,8 @@ struct AuthService {
                 case .success(let data):
                     do {
                         let tokenResponse = try self.decodeAccessTokenResponse(from: data)
-                        TokenStorageManager.shared.saveToken(accessToken: tokenResponse.data.attributes.accessToken,
-                                                         refreshToken: tokenResponse.data.attributes.refreshToken)
+                        self.tokenStorage.saveToken(accessToken: tokenResponse.data.attributes.accessToken,
+                                                    refreshToken: tokenResponse.data.attributes.refreshToken)
                         completion(true, nil)
                     } catch {
                         self.handleError(error: .jsonDecodingError(error), completion: completion)

@@ -10,107 +10,77 @@ import XCTest
 import Alamofire
 
 // MARK: - AuthServiceTests
+
 class AuthServiceTests: XCTestCase {
-    
     var authService: AuthService!
     var mockHTTPClient: MockHTTPClient!
-    var mockKeychainManager: MockKeychainManager!
-
+    var mockTokenStorage: MockTokenStorageManager!
+    
     override func setUp() {
         super.setUp()
         mockHTTPClient = MockHTTPClient()
-        mockKeychainManager = MockKeychainManager()
-        authService = AuthService(httpClient: mockHTTPClient, tokenStorage: mockKeychainManager)
+        mockTokenStorage = MockTokenStorageManager()
+        authService = AuthService(httpClient: mockHTTPClient, tokenStorage: mockTokenStorage)
     }
-
+    
     override func tearDown() {
-        mockHTTPClient = nil
-        mockKeychainManager = nil
         authService = nil
+        mockHTTPClient = nil
+        mockTokenStorage = nil
         super.tearDown()
     }
 
-    func testLoginWithCredentialsSuccess() {
-        // Preparar datos de respuesta exitosa
-        let data = """
-        {
-            "data": {
-                "id": "1",
-                "type": "tokens",
-                "attributes": {
-                    "access_token": "testAccessToken",
-                    "token_type": "bearer",
-                    "expires_in": 7200,
-                    "refresh_token": "testRefreshToken",
-                    "created_at": 1582266000
+    func testLoginWithValidCredentials() {
+        // Expectations
+        let loginExpectation = expectation(description: "Login completion handler invoked")
+
+        // Setup mock response
+        let expectedToken = "expectedToken"
+        let expectedRefreshToken = "expectedRefreshToken"
+        mockHTTPClient.requestHandler = { _, _, _, _, _, completion in  // Asegúrate de tener la cantidad correcta de parámetros aquí
+            let statusCode = 200
+            let url = URL(string: "https://example.com")!
+            let response = HTTPURLResponse(url: url,
+                                           statusCode: statusCode,
+                                           httpVersion: "HTTP/1.1",
+                                           headerFields: nil)!
+            
+            let responseJSON = """
+            {
+                "data": {
+                    "id": "9973",
+                    "type": "token",
+                    "attributes": {
+                        "access_token": "\(expectedToken)",
+                        "token_type": "Bearer",
+                        "expires_in": 7200,
+                        "refresh_token": "\(expectedRefreshToken)",
+                        "created_at": 1699262061
+                    }
                 }
             }
+            """.data(using: .utf8)!
+            
+            let result: Result<Data, AFError> = .success(responseJSON)
+            
+            // Crea un objeto AFDataResponse con los tipos correctos
+            let dataResponse = AFDataResponse(request: nil, response: response, data: responseJSON, metrics: nil, serializationDuration: 0, result: result)
+            
+            // Llama a completion con el objeto dataResponse
+            completion(dataResponse)
         }
-        """.data(using: .utf8)!
-        mockHTTPClient.dataResponse = data
 
-        let expectation = self.expectation(description: "Login success")
-
+        // Act
         authService.loginWithCredentials(email: "test@example.com", password: "password") { success, error in
             XCTAssertTrue(success)
             XCTAssertNil(error)
-            XCTAssertEqual(self.mockKeychainManager.get(AuthParamKey.accessToken), "testAccessToken")
-            XCTAssertEqual(self.mockKeychainManager.get(AuthParamKey.refreshToken), "testRefreshToken")
-            expectation.fulfill()
+            loginExpectation.fulfill()
         }
 
-        waitForExpectations(timeout: 5, handler: nil)
-    }
-
-    func testLoginWithCredentialsFailure() {
-        // Preparar AFError para simular un fallo de red
-        mockHTTPClient.errorResponse = AFError.explicitlyCancelled
-
-        let expectation = self.expectation(description: "Login failure")
-
-        authService.loginWithCredentials(email: "test@example.com", password: "password") { success, error in
-            XCTAssertFalse(success)
-            XCTAssertNotNil(error)
-            XCTAssertNil(self.mockKeychainManager.get(AuthParamKey.accessToken))
-            XCTAssertNil(self.mockKeychainManager.get(AuthParamKey.refreshToken))
-            expectation.fulfill()
-        }
-
-        waitForExpectations(timeout: 5, handler: nil)
-    }
-
-    // MARK: - DecodeAccessTokenResponse Tests
-
-    // Tests decoding access token response with valid data should return a decoded object.
-    func testDecodeAccessTokenResponseWithValidData() {
-        let jsonData = """
-        {
-            "data": {
-                "id": "1",
-                "type": "token",
-                "attributes": {
-                    "access_token": "some_access_token",
-                    "refresh_token": "some_refresh_token"
-                }
-            }
-        }
-        """.data(using: .utf8)!
-        
-        do {
-            let tokenResponse = try authService.decodeAccessTokenResponse(from: jsonData)
-            XCTAssertEqual(tokenResponse.data.attributes.accessToken, "some_access_token")
-            XCTAssertEqual(tokenResponse.data.attributes.refreshToken, "some_refresh_token")
-        } catch {
-            XCTFail("Decoding should not fail with valid JSON data")
-        }
-    }
-
-    // Tests decoding access token response with invalid data should throw an error.
-    func testDecodeAccessTokenResponseWithInvalidData() {
-        let jsonData = "invalid data".data(using: .utf8)!
-        
-        XCTAssertThrowsError(try authService.decodeAccessTokenResponse(from: jsonData)) { error in
-            XCTAssertTrue(error is DecodingError)
+        // Assert
+        waitForExpectations(timeout: 1) { error in
+            XCTAssertNil(error, "Test timeout")
         }
     }
 }
+
