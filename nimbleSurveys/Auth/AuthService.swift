@@ -19,7 +19,14 @@ struct AuthService {
     }
     private let tokenURL = "https://survey-api.nimblehq.co/api/v1/oauth/token"
     private let regURL = "https://survey-api.nimblehq.co/api/v1/registrations"
+    private let httpClient: HTTPClientProtocol
+    private let keychain: KeychainProtocol
 
+    init(httpClient: HTTPClientProtocol = Alamofire.Session.default, keychain: KeychainProtocol = KeychainManager()) {
+        self.httpClient = httpClient
+        self.keychain = keychain
+    }
+    
     func loginWithCredentials(email: String, password: String, completion: @escaping (Bool, Error?) -> Void) {
         login(email: email, password: password, completion: completion)
     }
@@ -96,3 +103,15 @@ extension AuthService {
     }
 }
 
+extension Alamofire.Session: HTTPClientProtocol {
+    func request(_ url: URLConvertible,
+                 method: HTTPMethod,
+                 parameters: Parameters? = nil,
+                 encoding: ParameterEncoding = URLEncoding.default,
+                 headers: HTTPHeaders? = nil,
+                 completion: @escaping (AFDataResponse<Data>) -> Void) {
+        self.request(url, method: method, parameters: parameters, encoding: encoding, headers: headers)
+            .validate()
+            .responseData(completionHandler: completion)
+    }
+}

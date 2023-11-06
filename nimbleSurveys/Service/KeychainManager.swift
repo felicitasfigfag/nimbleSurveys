@@ -23,3 +23,18 @@ class KeychainManager {
     }
     
 }
+
+extension KeychainManager: KeychainProtocol {
+    func set(_ value: String, forKey key: String) -> Bool {
+        return keychain.set(value, forKey: key)
+    }
+    
+    func get(_ key: String) -> String? {
+        return keychain.get(key)
+    }
+    
+    func delete(_ key: String) -> Bool {
+        return keychain.delete(key)
+    }
+}
+
