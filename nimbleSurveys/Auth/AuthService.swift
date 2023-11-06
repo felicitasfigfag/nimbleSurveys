@@ -10,28 +10,28 @@ import Alamofire
 import KeychainSwift
 
 struct AuthService {
+    private let httpClient: HTTPClientProtocol
+    private let tokenStorage: TokenStorageProtocol
     private let clientID: String
     private let clientSecret: String
     private let tokenURL: String
-    private let httpClient: HTTPClientProtocol
-    private let keychain: KeychainProtocol
 
-    init(httpClient: HTTPClientProtocol = Alamofire.Session.default,
-            keychain: KeychainProtocol = KeychainManager(),
-            environment: [String: String] = ProcessInfo.processInfo.environment) {
+    init(httpClient: HTTPClientProtocol = NetworkClient(),
+         tokenStorage: TokenStorageProtocol = TokenStorageManager(),
+         environment: [String: String] = ProcessInfo.processInfo.environment) {
         
         guard let clientID = environment["CLIENT_ID"],
-                let clientSecret = environment["CLIENT_SECRET"],
-                let tokenURL = environment["TOKEN_URL"] 
+              let clientSecret = environment["CLIENT_SECRET"],
+              let tokenURL = environment["TOKEN_URL"]
         else {
-            fatalError("Environment variables CLIENT_ID, CLIENT_SECRET, and TOKEN_URL must be set.")
+            fatalError("Falta una variable de entorno necesaria para la autenticación.")
         }
-            
+        
         self.clientID = clientID
         self.clientSecret = clientSecret
         self.tokenURL = tokenURL
         self.httpClient = httpClient
-        self.keychain = keychain
+        self.tokenStorage = tokenStorage
     }
     
 
@@ -41,7 +41,7 @@ struct AuthService {
 
     func login(email: String, password: String, completion: @escaping (Bool, Error?) -> Void) {
         let loginParameters: [String: Any] = [
-            AuthParamKey.grantType: password,
+            AuthParamKey.grantType: "password",
             AuthParamKey.email: email,
             AuthParamKey.password: password,
             AuthParamKey.clientID: clientID,
@@ -56,7 +56,7 @@ struct AuthService {
                 case .success(let data):
                     do {
                         let tokenResponse = try self.decodeAccessTokenResponse(from: data)
-                        KeychainManager.shared.saveToken(accessToken: tokenResponse.data.attributes.accessToken,
+                        TokenStorageManager.shared.saveToken(accessToken: tokenResponse.data.attributes.accessToken,
                                                          refreshToken: tokenResponse.data.attributes.refreshToken)
                         completion(true, nil)
                     } catch {
@@ -71,7 +71,7 @@ struct AuthService {
     
     func refreshToken(refreshToken: String, completion: @escaping (Bool, Error?) -> Void) {
         let refreshParameters = [
-             AuthParamKey.grantType: refreshToken,
+             AuthParamKey.grantType: "refreshToken",
              AuthParamKey.refreshToken: refreshToken,
              AuthParamKey.clientID: clientID,
              AuthParamKey.clientSecret: clientSecret

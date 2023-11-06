@@ -8,8 +8,8 @@
 import Foundation
 import KeychainSwift
 
-class KeychainManager {
-    static let shared = KeychainManager()
+class TokenStorageManager {
+    static let shared = TokenStorageManager()
     private let keychain = KeychainSwift()
 
     func saveToken(accessToken: String, refreshToken: String) {
@@ -22,9 +22,15 @@ class KeychainManager {
         keychain.set(username, forKey: "username")
     }
     
+    func saveRefreshToken(_ refreshToken: String) {
+        keychain.set(refreshToken, forKey: "refreshToken")
+    }
+    
 }
 
-extension KeychainManager: KeychainProtocol {
+extension TokenStorageManager: TokenStorageProtocol {
+    
+    
     func set(_ value: String, forKey key: String) -> Bool {
         return keychain.set(value, forKey: key)
     }

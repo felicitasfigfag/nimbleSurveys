@@ -17,8 +17,11 @@ protocol HTTPClientProtocol {
                  completion: @escaping (AFDataResponse<Data>) -> Void)
 }
 
-protocol KeychainProtocol {
+
+protocol TokenStorageProtocol {
     func set(_ value: String, forKey key: String) -> Bool
     func get(_ key: String) -> String?
     func delete(_ key: String) -> Bool
+    func saveToken(accessToken: String, refreshToken: String)
+    func saveRefreshToken(_ refreshToken: String)
 }
