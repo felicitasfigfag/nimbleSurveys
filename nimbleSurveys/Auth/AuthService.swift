@@ -10,19 +10,26 @@ import Alamofire
 import KeychainSwift
 
 struct AuthService {
-    private var clientID: String {
-        return ProcessInfo.processInfo.environment["CLIENT_ID"] ?? "default_client_id"
-    }
-        
-    private var clientSecret: String {
-        return ProcessInfo.processInfo.environment["CLIENT_SECRET"] ?? "default_client_secret"
-    }
-    private let tokenURL = "https://survey-api.nimblehq.co/api/v1/oauth/token"
-    private let regURL = "https://survey-api.nimblehq.co/api/v1/registrations"
+    private let clientID: String
+    private let clientSecret: String
+    private let tokenURL: String
     private let httpClient: HTTPClientProtocol
     private let keychain: KeychainProtocol
 
-    init(httpClient: HTTPClientProtocol = Alamofire.Session.default, keychain: KeychainProtocol = KeychainManager()) {
+    init(httpClient: HTTPClientProtocol = Alamofire.Session.default,
+            keychain: KeychainProtocol = KeychainManager(),
+            environment: [String: String] = ProcessInfo.processInfo.environment) {
+        
+        guard let clientID = environment["CLIENT_ID"],
+                let clientSecret = environment["CLIENT_SECRET"],
+                let tokenURL = environment["TOKEN_URL"] 
+        else {
+            fatalError("Environment variables CLIENT_ID, CLIENT_SECRET, and TOKEN_URL must be set.")
+        }
+            
+        self.clientID = clientID
+        self.clientSecret = clientSecret
+        self.tokenURL = tokenURL
         self.httpClient = httpClient
         self.keychain = keychain
     }
@@ -32,12 +39,13 @@ struct AuthService {
     }
 
     func login(email: String, password: String, completion: @escaping (Bool, Error?) -> Void) {
+        
         let loginParameters: [String: Any] = [
-            "grant_type": "password",
-            "email": email,
-            "password": password,
-            "client_id": clientID,
-            "client_secret": clientSecret
+            AuthParamKey.grantType: password,
+            AuthParamKey.email: email,
+            AuthParamKey.password: password,
+            AuthParamKey.clientID: clientID,
+            AuthParamKey.clientSecret: clientSecret
         ]
         let headers: HTTPHeaders = ["Content-Type": "application/json"]
         
@@ -72,20 +80,20 @@ struct AuthService {
     
     func refreshToken(refreshToken: String, completion: @escaping (Bool, Error?) -> Void) {
         let refreshParameters = [
-            "grant_type": "refresh_token",
-            "refresh_token": refreshToken,
-            "client_id": clientID,
-            "client_secret": clientSecret
-        ]
+             AuthParamKey.grantType: refreshToken,
+             AuthParamKey.refreshToken: refreshToken,
+             AuthParamKey.clientID: clientID,
+             AuthParamKey.clientSecret: clientSecret
+         ]
         
-        AF.request(regURL, method: .post, parameters: refreshParameters, encoder: URLEncodedFormParameterEncoder.default)
+        AF.request(tokenURL, method: .post, parameters: refreshParameters, encoder: URLEncodedFormParameterEncoder.default)
             .validate()
             .responseDecodable(of: AccessTokenResponse.self) { response in
                 switch response.result {
                 case .success(let accessTokenResponse):
                     let keychain = KeychainSwift()
-                    keychain.set(accessTokenResponse.data.attributes.accessToken, forKey: "accessToken")
-                    keychain.set(accessTokenResponse.data.attributes.refreshToken, forKey: "refreshToken")
+                    keychain.set(accessTokenResponse.data.attributes.accessToken, forKey: AuthParamKey.accessToken)
+                    keychain.set(accessTokenResponse.data.attributes.refreshToken, forKey: AuthParamKey.refreshToken)
                     completion(true, nil)
                 case .failure(let error):
                     completion(false, error)

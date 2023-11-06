@@ -58,3 +58,13 @@ struct User: Codable {
     let email: String
     let username: String
 }
+
+enum AuthParamKey {
+    static let grantType = "grant_type"
+    static let email = "email"
+    static let password = "password"
+    static let clientID = "client_id"
+    static let clientSecret = "client_secret"
+    static let refreshToken = "refresh_token"
+    static let accessToken = "access_token"
+}
