@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Japx
 
 struct SlideData {
     var title: String
@@ -51,11 +50,9 @@ struct AccessTokenData: Codable {
 struct AccessTokenResponse: Codable {
     let data: AccessTokenData
 }
-struct JapxResponse<T: Codable>: Codable {
-    let data: T
-}
 
-struct User: Codable, JapxDecodable {
+
+struct User: Codable {
     let id: String
     let type: String
     let email: String

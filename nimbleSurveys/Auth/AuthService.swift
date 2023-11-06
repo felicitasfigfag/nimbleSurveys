@@ -8,7 +8,6 @@
 import Foundation
 import Alamofire
 import KeychainSwift
-import Japx
 
 struct AuthService {
     private var clientID: String {

@@ -5,8 +5,6 @@ target 'nimbleSurveys' do
 
   pod 'Alamofire', '~> 5.5'
   pod 'KeychainSwift', '~> 20.0'
-  pod 'Japx'
-  pod 'Japx/Alamofire'
 
   target 'nimbleSurveysTests' do
     inherit! :search_paths
