@@ -68,3 +68,23 @@ enum AuthParamKey {
     static let refreshToken = "refresh_token"
     static let accessToken = "access_token"
 }
+
+enum AuthServiceError: Error {
+    case missingEnvironmentVariable
+    case jsonDecodingError(Error)
+    case networkError(Error)
+    case unknownError
+    
+    var localizedDescription: String {
+        switch self {
+        case .missingEnvironmentVariable:
+            return "Required environment variable not found."
+        case .jsonDecodingError(let error):
+            return "Failed to decode JSON: \(error.localizedDescription)"
+        case .networkError(let error):
+            return "Network error occurred: \(error.localizedDescription)"
+        case .unknownError:
+            return "An unknown error occurred."
+        }
+    }
+}

@@ -34,12 +34,12 @@ struct AuthService {
         self.keychain = keychain
     }
     
+
     func loginWithCredentials(email: String, password: String, completion: @escaping (Bool, Error?) -> Void) {
         login(email: email, password: password, completion: completion)
     }
 
     func login(email: String, password: String, completion: @escaping (Bool, Error?) -> Void) {
-        
         let loginParameters: [String: Any] = [
             AuthParamKey.grantType: password,
             AuthParamKey.email: email,
@@ -52,31 +52,22 @@ struct AuthService {
         AF.request(tokenURL, method: .post, parameters: loginParameters, encoding: JSONEncoding.default, headers: headers)
             .validate()
             .responseData { response in
-                debugPrint(response)
-                
                 switch response.result {
                 case .success(let data):
                     do {
-                        print(String(data: data, encoding: .utf8)!)
-                        let tokenResponse = try decodeAccessTokenResponse(from: data)
+                        let tokenResponse = try self.decodeAccessTokenResponse(from: data)
                         KeychainManager.shared.saveToken(accessToken: tokenResponse.data.attributes.accessToken,
                                                          refreshToken: tokenResponse.data.attributes.refreshToken)
-                        // Save user data if needed
-                        // KeychainManager.shared.saveUser(email: userEmail, username: username)
-
                         completion(true, nil)
                     } catch {
-                        print("Error during JSON decoding: \(error.localizedDescription)")
-                        completion(false, error)
+                        self.handleError(error: .jsonDecodingError(error), completion: completion)
                     }
                 case .failure(let error):
-                    print("Error: \(error)")
-                    completion(false, error)
+                    self.handleError(error: .networkError(error), completion: completion)
                 }
             }
     }
 
-    
     
     func refreshToken(refreshToken: String, completion: @escaping (Bool, Error?) -> Void) {
         let refreshParameters = [
@@ -96,7 +87,7 @@ struct AuthService {
                     keychain.set(accessTokenResponse.data.attributes.refreshToken, forKey: AuthParamKey.refreshToken)
                     completion(true, nil)
                 case .failure(let error):
-                    completion(false, error)
+                    self.handleError(error: .networkError(error), completion: completion)
                 }
             }
     }
@@ -121,5 +112,13 @@ extension Alamofire.Session: HTTPClientProtocol {
         self.request(url, method: method, parameters: parameters, encoding: encoding, headers: headers)
             .validate()
             .responseData(completionHandler: completion)
+    }
+}
+
+extension AuthService {
+    func handleError(error: AuthServiceError, completion: @escaping (Bool, Error?) -> Void) {
+        // In the future we would use a function like this to fire Alerts to the user in the case of an error
+        print(error.localizedDescription) // Log the error
+        completion(false, error)
     }
 }
