@@ -1,6 +1,9 @@
 El objetivo principal de la aplicación es proporcionar a los usuarios una experiencia fluida y segura al explorar listados de encuestas, con un diseño intuitivo y funcional. 
+
 La implementación desde Figma incluye una pantalla de login/registro, una principal con diseño dinámico de fondo, y otra de detalle, complementadas por un sistema de navegación que utiliza pestañas, desplazamiento horizontal y tarjetas. 
+
 La integración de OAuth2 garantiza un acceso seguro y eficiente, manejando el inicio de sesión y la automatización de la renovación de tokens, lo cual se alinea con una gestión de claves robusta a través del Keychain de iOS.
+
 El aseguramiento de la calidad del código se sostiene mediante pruebas unitarias.
 
 
